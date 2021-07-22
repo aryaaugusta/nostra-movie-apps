@@ -26,5 +26,6 @@ public class Genre {
     @Transient
     @JsonManagedReference(value = "genreId")
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "genre", cascade = CascadeType.ALL)
+    @ApiModelProperty(hidden = true)
     private List<MovieGenre> movieGenreList;
 }

@@ -38,6 +38,6 @@ public class Movie {
 
     @Transient
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
-    @JsonManagedReference(value = "movieGenreId")
+    @JsonManagedReference(value = "genreId")
     private List<MovieGenre> movieGenreList;
 }
