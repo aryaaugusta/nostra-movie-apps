@@ -12,7 +12,7 @@ public interface MovieService {
 
     List<Movie> getAllMovies();
 
-    Movie insertMovies(Movie movie);
+    Map<String, Object> insertMovies(Movie movie);
 
     Map<String, Object> deleteMovieById(Long id);
 
@@ -20,9 +20,9 @@ public interface MovieService {
 
     Optional<Movie> findById(long id);
 
-    Person insertPerson(Person person);
+    Map<String, Object> insertPerson(Person person);
 
-    Genre insertGenre(Genre genre);
+    Map<String, Object> insertGenre(Genre genre);
 
     Map<String, Object> getMovieByTitle(Map<String, Object> mapInput, String title);
 

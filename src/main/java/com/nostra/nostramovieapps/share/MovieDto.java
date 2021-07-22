@@ -12,6 +12,6 @@ public class MovieDto {
     private String overview;
     private Double voteAverage;
     private String job;
-    private String director;
+    private String person;
     private String genre;
 }

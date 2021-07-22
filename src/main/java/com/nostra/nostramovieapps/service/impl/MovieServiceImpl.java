@@ -36,11 +36,14 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public Movie insertMovies(Movie movie) {
+    public Map<String, Object> insertMovies(Movie movie) {
 
         Optional<Movie> moviesOptional = movieRepo.findByTitle(movie.getTitle());
+        List<MovieDto> movieDtos = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
         if (moviesOptional.isPresent()) {
             System.out.println("movie optional = " + moviesOptional.get());
+            map.put("contentData", "Movie with given title already exists !");
             try {
                 throw new Exception("Movie with given title already exists");
             } catch (Exception e) {
@@ -48,6 +51,7 @@ public class MovieServiceImpl implements MovieService {
             }
         } else {
             movieRepo.save(movie);
+            MovieDto dto = new MovieDto();
             if (movie.getMovieCrewList() != null) {
                 for (int i = 0; i < movie.getMovieCrewList().size(); i++) {
                     Optional<Person> personOptional = personRepo.findByName(movie.getMovieCrewList().get(i).getPerson().getName());
@@ -56,6 +60,14 @@ public class MovieServiceImpl implements MovieService {
                     movieCrew.setJob(movie.getMovieCrewList().get(i).getJob());
                     movieCrew.setPerson(personOptional.get());
                     movieCrewRepo.save(movieCrew);
+                    String[] array = new String[movie.getMovieCrewList().size()];
+                    for (int x = 0; x < movie.getMovieCrewList().size(); x++) {
+                        array[x] = String.valueOf(movie.getMovieCrewList().get(x).getPerson().getName());
+                    }
+                    array = Arrays.stream(array).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
+                    String resultPerson = String.join(", ", array);
+                    dto.setPerson(resultPerson);
+                    dto.setJob(movieCrew.getJob());
                 }
             }
 
@@ -66,54 +78,75 @@ public class MovieServiceImpl implements MovieService {
                     movieGenre.setMovie(movie);
                     movieGenre.setGenre(genreOptional.get());
                     movieGenreRepo.save(movieGenre);
+                    String[] array = new String[movie.getMovieGenreList().size()];
+                    for (int x = 0; x < movie.getMovieGenreList().size(); x++) {
+                        array[x] = String.valueOf(movie.getMovieGenreList().get(x).getGenre().getName());
+                    }
+                    array = Arrays.stream(array).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
+                    String resultGenre = String.join(", ", array);
+                    dto.setGenre(resultGenre);
                 }
-
             }
-        }
 
-        return movie;
+            dto.setId(movie.getId());
+            dto.setTitle(movie.getTitle());
+            dto.setOverview(movie.getOverview());
+            dto.setVoteAverage(movie.getVoteAverage());
+            movieDtos.add(dto);
+            map.put("contentData", movieDtos);
+        }
+        map.put("totalRecords", (long) movieDtos.size());
+        return map;
     }
 
     @Override
-    public Person insertPerson(Person person) {
+    public Map<String, Object> insertPerson(Person person) {
 
         Optional<Person> personOptional = personRepo.findByName(person.getName());
+        List<MovieDto> movieDtos = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
         if (personOptional.isPresent()) {
             System.out.println("person optional = " + personOptional.get());
+            map.put("contentData", "Person with given name already exists !");
             try {
                 throw new Exception("Person with given name already exists");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
-            person = personOptional.get();
             personRepo.save(person);
+            MovieDto dto = new MovieDto();
+            dto.setPerson(person.getName());
+            movieDtos.add(dto);
+            map.put("contentData", person);
         }
-        return person;
+        map.put("totalRecords", (long) movieDtos.size());
+        return map;
     }
 
     @Override
-    public Genre insertGenre(Genre genre) {
+    public Map<String, Object> insertGenre(Genre genre) {
 
         Optional<Genre> genreOptional = genreRepo.findByGenreName(genre.getName());
+        List<MovieDto> movieDtos = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
         if (genreOptional.isPresent()) {
             System.out.println("genre optional = " + genreOptional.get());
+            map.put("contentData", "Genre with given genre name already exists !");
             try {
                 throw new Exception("Genre with given genre name already exists");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
-            genre = genreOptional.get();
             genreRepo.save(genre);
-            if (genre.getMovieGenreList() != null) {
-                for (MovieGenre movieGenre : genre.getMovieGenreList()) {
-                    movieGenre.setGenre(genre);
-                    movieGenreRepo.save(movieGenre);
-                }
-            }
+            MovieDto dto = new MovieDto();
+            dto.setGenre(genre.getName());
+            movieDtos.add(dto);
+            map.put("contentData", genre);
         }
-        return genre;
+        map.put("totalRecords", (long) movieDtos.size());
+        return map;
     }
 
     @Override
@@ -136,7 +169,7 @@ public class MovieServiceImpl implements MovieService {
             dto.setVoteAverage((Double) data[3]);
             dto.setJob((String) data[4]);
             dto.setGenre((String) data[5]);
-            dto.setDirector((String) data[6]);
+            dto.setPerson((String) data[6]);
             movieDtos.add(dto);
         }
         Map<String, Object> map = new HashMap<>();
@@ -170,7 +203,7 @@ public class MovieServiceImpl implements MovieService {
             dto.setOverview((String) data[2]);
             dto.setVoteAverage((Double) data[3]);
             dto.setJob((String) data[4]);
-            dto.setDirector((String) data[5]);
+            dto.setPerson((String) data[5]);
             String[] array = new String[genreDtos.size()];
             for (int x = 0; x < genreDtos.size(); x++) {
                 if (genreDtos.get(x).getId().equals(dto.getId())) {

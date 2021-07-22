@@ -27,34 +27,43 @@ public class MovieController {
 
     @ApiOperation(value = "Insert Movie", notes = "This method for save or input movie")
     @PostMapping("/insertMovie")
-    public ResponseEntity insertMovies(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Movie movie) {
+    public RestResponse insertMovies(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Movie movie) {
         try {
-            Movie saveMovie = movieService.insertMovies(movie);
-            return new ResponseEntity<>(saveMovie, HttpStatus.CREATED);
+            Map<String, Object> map = movieService.insertMovies(movie);
+            if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
+                return new RestResponse(CommonConstants.CONFLICT, "Insert Movie Failed !", map.get("contentData"), (long) map.get("totalRecords"));
+            }
+            return new RestResponse(CommonConstants.CREATED, "Insert Movie Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
         }
     }
 
     @ApiOperation(value = "Insert Person", notes = "This method for save or input person name")
     @PostMapping("/insertPerson")
-    public ResponseEntity insertPerson(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Person person) {
+    public RestResponse insertPerson(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Person person) {
         try {
-            Person savePerson = movieService.insertPerson(person);
-            return new ResponseEntity<>(savePerson, HttpStatus.CREATED);
+            Map<String, Object> map = movieService.insertPerson(person);
+            if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
+                return new RestResponse(CommonConstants.CONFLICT, "Insert Person Failed !", map.get("contentData"), (long) map.get("totalRecords"));
+            }
+            return new RestResponse(CommonConstants.CREATED, "Insert Person Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
         }
     }
 
     @ApiOperation(value = "Insert Genre", notes = "This method for save or input genre")
     @PostMapping("/insertGenre")
-    public ResponseEntity insertGenre(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Genre genre) {
+    public RestResponse insertGenre(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Genre genre) {
         try {
-            Genre saveGenre = movieService.insertGenre(genre);
-            return new ResponseEntity<>(saveGenre, HttpStatus.CREATED);
+            Map<String, Object> map =  movieService.insertGenre(genre);
+            if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
+                return new RestResponse(CommonConstants.CONFLICT, "Insert Genre Failed !", map.get("contentData"), (long) map.get("totalRecords"));
+            }
+            return new RestResponse(CommonConstants.CREATED, "Insert Genre Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
         }
     }
 
