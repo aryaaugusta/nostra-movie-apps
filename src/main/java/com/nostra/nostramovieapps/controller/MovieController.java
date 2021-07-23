@@ -27,7 +27,7 @@ public class MovieController {
 
     @ApiOperation(value = "Insert Movie", notes = "This method for save or input movie")
     @PostMapping("/insertMovie")
-    public RestResponse insertMovies(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Movie movie) {
+    public RestResponse insertMovies(@ApiParam(value = "Input title,overview,rating value for the movie you need to insert", required = true) @RequestBody Movie movie) {
         try {
             Map<String, Object> map = movieService.insertMovies(movie);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
@@ -41,7 +41,7 @@ public class MovieController {
 
     @ApiOperation(value = "Insert Person", notes = "This method for save or input person name")
     @PostMapping("/insertPerson")
-    public RestResponse insertPerson(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Person person) {
+    public RestResponse insertPerson(@ApiParam(value = "Input person name ex. director name, producer name etc", required = true) @RequestBody Person person) {
         try {
             Map<String, Object> map = movieService.insertPerson(person);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
@@ -55,7 +55,7 @@ public class MovieController {
 
     @ApiOperation(value = "Insert Genre", notes = "This method for save or input genre")
     @PostMapping("/insertGenre")
-    public RestResponse insertGenre(@ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Genre genre) {
+    public RestResponse insertGenre(@ApiParam(value = "Input movie genre", required = true) @RequestBody Genre genre) {
         try {
             Map<String, Object> map =  movieService.insertGenre(genre);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
@@ -69,7 +69,7 @@ public class MovieController {
 
     @ApiOperation(value = "Get Movie By Title", notes = "This method for get all movie or filter or search movie by title")
     @ApiImplicitParams(@ApiImplicitParam(name = "mapInput", dataType = "ApplicationProperties2",
-            value = "Data to be stored in Json format", example = "Jurassic", required = true,
+            value = "Input movie title name value for the movie title you need to search", example = "Jurassic", required = true,
             examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"search\":\"Jurassic\"}"))))
     @PostMapping("/getMovieByTitle")
     public RestResponse getMovieByTitle(@RequestBody Map<String, Object> mapInput) {
@@ -89,7 +89,7 @@ public class MovieController {
 
     @ApiOperation(value = "Get Movie By Genre", notes = "This method for filter or search all movie by genre")
     @ApiImplicitParams(@ApiImplicitParam(name = "mapInput", dataType = "ApplicationProperties1",
-            value = "Data to be stored in Json format", example = "Action", required = true,
+            value = "Input movie genre name value for the movie you need to search by movie genre/category", example = "Action", required = true,
             examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"search\":\"Action\"}"))))
     @PostMapping("/getMovieByGenre")
     public RestResponse getMovieByGenre(@RequestBody Map<String, Object> mapInput) {
@@ -120,9 +120,9 @@ public class MovieController {
         }
     }
 
-    @ApiOperation(value = "Delete movie by id movie", notes = "This method for delete movie by id movie")
+    @ApiOperation(value = "Delete Movie by Id Movie", notes = "This method for delete movie by id movie")
     @DeleteMapping("/deleteMovie/{id}")
-    public RestResponse deleteMovieById(@ApiParam(value = "input id movie", required = true) @PathVariable("id") Long id) {
+    public RestResponse deleteMovieById(@ApiParam(value = "ID Movie value for the movie you need to deleted", required = true) @PathVariable("id") Long id) {
         try {
             Map<String, Object> map = movieService.deleteMovieById(id);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
@@ -145,12 +145,11 @@ public class MovieController {
         }
     }
 
-    @ApiOperation(value = "Update movie by id movie", notes = "This method for update movie by id movie")
-    @ApiImplicitParams(@ApiImplicitParam(name = "mapInput", dataType = "ApplicationProperties3",
-            value = "Data to be stored in Json format", required = true,
+    @ApiOperation(value = "Update Movie by Id Movie", notes = "This method for update movie by id movie")
+    @ApiImplicitParams(@ApiImplicitParam(name = "mapInput", dataType = "ApplicationProperties3", value = "Data to be stored in Json format", required = true,
             examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{}"))))
     @PutMapping("/updateMovie/{id}")
-    public RestResponse updateMovieById(@ApiParam(value = "input id movie", required = true)
+    public RestResponse updateMovieById(@ApiParam(value = "ID Movie value for the movie you need to updated", required = true)
                                         @PathVariable(value = "id") Long id,
                                         @ApiParam(value = "Data to be stored in Json format", required = true) @RequestBody Map<String, Object> mapInput) {
 
