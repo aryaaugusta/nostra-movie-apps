@@ -26,13 +26,13 @@ public class MovieCrew {
 
     @JsonBackReference(value = "movieCrewId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_MOVIE")
     private Movie movie;
 
-    @JsonBackReference(value = "personId")
+//    @JsonBackReference(value = "personId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "ID_PERSON")
     private Person person;
 }

@@ -23,9 +23,9 @@ public class Genre {
     @Column(name = "NAME")
     private String name;
 
-    @Transient
-    @JsonManagedReference(value = "genreId")
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "genre", cascade = CascadeType.ALL)
-    @ApiModelProperty(hidden = true)
-    private List<MovieGenre> movieGenreList;
+//    @Transient
+//    @JsonManagedReference(value = "genreId")
+//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "genre", cascade = CascadeType.ALL)
+//    @ApiModelProperty(hidden = true)
+//    private List<MovieGenre> movieGenreList;
 }

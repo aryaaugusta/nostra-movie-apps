@@ -22,13 +22,13 @@ public class MovieGenre {
 
     @JsonBackReference(value = "movieGenreId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_MOVIE")
     private Movie movie;
 
-    @JsonBackReference(value = "genreId")
+//    @JsonBackReference(value = "genreId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "ID_GENRE")
     private Genre genre;
 }

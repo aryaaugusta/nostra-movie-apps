@@ -23,9 +23,9 @@ public class Person {
     @Column(name = "NAME")
     private String name;
 
-    @Transient
-    @JsonManagedReference(value = "personId")
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "person", cascade = CascadeType.ALL)
-    @ApiModelProperty(hidden = true)
-    private List<MovieCrew> movieCrewList;
+//    @Transient
+//    @JsonManagedReference(value = "personId")
+//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "person", cascade = CascadeType.ALL)
+//    @ApiModelProperty(hidden = true)
+//    private List<MovieCrew> movieCrewList;
 }

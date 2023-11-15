@@ -31,13 +31,14 @@ public class Movie {
     @Column(name = "VOTE_AVERAGE")
     private Double voteAverage;
 
-    @Transient
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
+    //    @Transient
+//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "movieCrewId")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
     private List<MovieCrew> movieCrewList;
 
-    @Transient
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
+//    @Transient
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
     @JsonManagedReference(value = "movieGenreId")
     private List<MovieGenre> movieGenreList;
 }

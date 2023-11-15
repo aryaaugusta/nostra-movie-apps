@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Transactional
+//@Transactional
 @Repository
 public interface MovieRepo extends JpaRepository<Movie, Long> {
 

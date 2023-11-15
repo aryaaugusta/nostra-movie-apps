@@ -12,7 +12,6 @@ import java.math.BigInteger;
 import java.util.*;
 
 @Service
-@Transactional
 public class MovieServiceImpl implements MovieService {
 
     @Autowired
@@ -36,6 +35,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public Map<String, Object> insertMovies(Movie movie) {
 
         Optional<Movie> moviesOptional = movieRepo.findByTitle(movie.getTitle());
@@ -100,6 +100,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public Map<String, Object> insertPerson(Person person) {
 
         Optional<Person> personOptional = personRepo.findByName(person.getName());
@@ -125,6 +126,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public Map<String, Object> insertGenre(Genre genre) {
 
         Optional<Genre> genreOptional = genreRepo.findByGenreName(genre.getName());
@@ -265,6 +267,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public Map<String, Object> updateMovieById(Map<String, Object> mapInput, Long id, String title, String overview, Double voteAverage) {
 
         Optional<Movie> movieWithId = movieRepo.findById(id);
