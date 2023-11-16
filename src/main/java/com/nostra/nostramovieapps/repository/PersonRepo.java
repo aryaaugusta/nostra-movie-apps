@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface PersonRepo extends JpaRepository<Person, Long> {
 
-    @Query("SELECT x FROM Person x WHERE x.name like :name")
-    Optional<Person> findByName(String name);
+//    @Query("SELECT x FROM Person x WHERE x.name like :name")
+    Optional<Person> findPersonByNameLike(String name);
 }

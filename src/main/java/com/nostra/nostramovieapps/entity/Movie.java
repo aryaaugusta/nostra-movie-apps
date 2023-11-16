@@ -2,16 +2,15 @@ package com.nostra.nostramovieapps.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Getter
-@Setter
-@Entity
-@Table(name = "MOVIE")
+@Entity(name = "MOVIE")
+@Data
+@NoArgsConstructor
 public class Movie {
 
     @Id
@@ -37,7 +36,7 @@ public class Movie {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
     private List<MovieCrew> movieCrewList;
 
-//    @Transient
+    //    @Transient
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
     @JsonManagedReference(value = "movieGenreId")
     private List<MovieGenre> movieGenreList;

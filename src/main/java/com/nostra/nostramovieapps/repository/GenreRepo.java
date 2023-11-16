@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface GenreRepo extends JpaRepository<Genre, Long> {
 
-    @Query("SELECT x FROM Genre x WHERE x.name like :name")
-    Optional<Genre> findByGenreName(String name);
+//    @Query("SELECT x FROM Genre x WHERE x.name like :name")
+    Optional<Genre> findGenreByNameLike(String name);
 }

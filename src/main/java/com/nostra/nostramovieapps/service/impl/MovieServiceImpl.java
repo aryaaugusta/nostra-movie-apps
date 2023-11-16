@@ -38,7 +38,7 @@ public class MovieServiceImpl implements MovieService {
     @Transactional
     public Map<String, Object> insertMovies(Movie movie) {
 
-        Optional<Movie> moviesOptional = movieRepo.findByTitle(movie.getTitle());
+        Optional<Movie> moviesOptional = movieRepo.findMovieByTitleLike(movie.getTitle());
         List<MovieDto> movieDtos = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         if (moviesOptional.isPresent()) {
@@ -54,7 +54,7 @@ public class MovieServiceImpl implements MovieService {
             MovieDto dto = new MovieDto();
             if (movie.getMovieCrewList() != null) {
                 for (int i = 0; i < movie.getMovieCrewList().size(); i++) {
-                    Optional<Person> personOptional = personRepo.findByName(movie.getMovieCrewList().get(i).getPerson().getName());
+                    Optional<Person> personOptional = personRepo.findPersonByNameLike(movie.getMovieCrewList().get(i).getPerson().getName());
                     MovieCrew movieCrew = new MovieCrew();
                     movieCrew.setMovie(movie);
                     movieCrew.setJob(movie.getMovieCrewList().get(i).getJob());
@@ -73,7 +73,7 @@ public class MovieServiceImpl implements MovieService {
 
             if (movie.getMovieGenreList() != null) {
                 for (int i = 0; i < movie.getMovieGenreList().size(); i++) {
-                    Optional<Genre> genreOptional = genreRepo.findByGenreName(movie.getMovieGenreList().get(i).getGenre().getName());
+                    Optional<Genre> genreOptional = genreRepo.findGenreByNameLike(movie.getMovieGenreList().get(i).getGenre().getName());
                     MovieGenre movieGenre = new MovieGenre();
                     movieGenre.setMovie(movie);
                     movieGenre.setGenre(genreOptional.get());
@@ -103,7 +103,7 @@ public class MovieServiceImpl implements MovieService {
     @Transactional
     public Map<String, Object> insertPerson(Person person) {
 
-        Optional<Person> personOptional = personRepo.findByName(person.getName());
+        Optional<Person> personOptional = personRepo.findPersonByNameLike(person.getName());
         List<MovieDto> movieDtos = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         if (personOptional.isPresent()) {
@@ -129,7 +129,7 @@ public class MovieServiceImpl implements MovieService {
     @Transactional
     public Map<String, Object> insertGenre(Genre genre) {
 
-        Optional<Genre> genreOptional = genreRepo.findByGenreName(genre.getName());
+        Optional<Genre> genreOptional = genreRepo.findGenreByNameLike(genre.getName());
         List<MovieDto> movieDtos = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         if (genreOptional.isPresent()) {
@@ -163,9 +163,7 @@ public class MovieServiceImpl implements MovieService {
         List<MovieDto> movieDtos = new ArrayList<>();
         for (Object[] data : objectsMovieByGenre) {
             MovieDto dto = new MovieDto();
-            BigInteger idBigInt = (BigInteger) data[0];
-            Long idL = idBigInt.longValue();
-            dto.setId(idL);
+            dto.setId((Long) data[0]);
             dto.setTitle((String) data[1]);
             dto.setOverview((String) data[2]);
             dto.setVoteAverage((Double) data[3]);
@@ -271,7 +269,7 @@ public class MovieServiceImpl implements MovieService {
     public Map<String, Object> updateMovieById(Map<String, Object> mapInput, Long id, String title, String overview, Double voteAverage) {
 
         Optional<Movie> movieWithId = movieRepo.findById(id);
-        Optional<Movie> movieWithSameTitle = movieRepo.findByTitle(title);
+        Optional<Movie> movieWithSameTitle = movieRepo.findMovieByTitleLike(title);
         List<MovieDto> movieDtos = new ArrayList<>();
         if (movieWithId.isPresent()) {
             if (movieWithSameTitle.isPresent()) {

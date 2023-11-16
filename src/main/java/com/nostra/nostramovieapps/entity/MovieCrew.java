@@ -2,17 +2,16 @@ package com.nostra.nostramovieapps.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
-@Entity
-@Table(name = "MOVIE_CREW")
+@Entity(name = "MOVIE_CREW")
+@Data
+@NoArgsConstructor
 public class MovieCrew {
 
     @Id
@@ -30,7 +29,7 @@ public class MovieCrew {
     @JoinColumn(name = "ID_MOVIE")
     private Movie movie;
 
-//    @JsonBackReference(value = "personId")
+    //    @JsonBackReference(value = "personId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
     @JoinColumn(name = "ID_PERSON")

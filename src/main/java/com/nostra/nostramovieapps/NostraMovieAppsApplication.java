@@ -5,11 +5,10 @@ import com.google.common.base.Predicate;
 import com.nostra.nostramovieapps.share.ApplicationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -22,9 +21,6 @@ import static com.google.common.base.Predicates.or;
 import static springfox.documentation.builders.PathSelectors.regex;
 
 @SpringBootApplication
-@AutoConfigurationPackage
-@EnableJpaRepositories
-@Configuration
 @EnableSwagger2
 public class NostraMovieAppsApplication {
 
@@ -50,5 +46,19 @@ public class NostraMovieAppsApplication {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("Nostra Movie API").description("Nostra Movie API reference for developers").build();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("*")
+                        .allowedMethods("*")
+                        .allowedHeaders("*")
+                        .allowCredentials(false).maxAge(3600);
+            }
+        };
     }
 }

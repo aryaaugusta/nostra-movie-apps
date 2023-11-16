@@ -6,16 +6,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-//@Transactional
 @Repository
 public interface MovieRepo extends JpaRepository<Movie, Long> {
 
-    @Query("SELECT x FROM Movie x WHERE x.title like :title")
-    Optional<Movie> findByTitle(String title);
+//    @Query("SELECT x FROM Movie x WHERE x.title like :title")
+    Optional<Movie> findMovieByTitleLike(String title);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE nostra_movie.nostra.movie SET title = :title, overview = :overview, vote_average = :voteAverage where id = :id", nativeQuery = true)
