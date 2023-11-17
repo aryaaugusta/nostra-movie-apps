@@ -25,7 +25,7 @@ public class MovieGenre {
     @JoinColumn(name = "ID_MOVIE")
     private Movie movie;
 
-    //    @JsonBackReference(value = "genreId")
+//    @JsonBackReference(value = "genreId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
     @JoinColumn(name = "ID_GENRE")

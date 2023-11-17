@@ -28,7 +28,7 @@ public class MovieController {
 
     @ApiOperation(value = "Insert Movie", notes = "This method for save or input movie")
     @PostMapping("/insertMovie")
-    public RestResponse createMovies(@ApiParam(value = "Input title,overview,rating value for the movie you need to insert", required = true) @RequestBody Movie movie) {
+    public RestResponse insertMovies(@ApiParam(value = "Input title,overview,rating value for the movie you need to insert", required = true) @RequestBody Movie movie) {
         try {
             Map<String, Object> map = movieService.insertMovies(movie);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
@@ -36,13 +36,13 @@ public class MovieController {
             }
             return new RestResponse(CommonConstants.CREATED, "Insert Movie Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed create movie", e);
         }
     }
 
     @ApiOperation(value = "Insert Person", notes = "This method for save or input person name")
     @PostMapping("/insertPerson")
-    public RestResponse createPerson(@ApiParam(value = "Input person name ex. director name, producer name etc", required = true) @RequestBody Person person) {
+    public RestResponse insertPerson(@ApiParam(value = "Input person name ex. director name, producer name etc", required = true) @RequestBody Person person) {
         try {
             Map<String, Object> map = movieService.insertPerson(person);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
@@ -50,13 +50,13 @@ public class MovieController {
             }
             return new RestResponse(CommonConstants.CREATED, "Insert Person Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed create person", e);
         }
     }
 
     @ApiOperation(value = "Insert Genre", notes = "This method for save or input genre")
     @PostMapping("/insertGenre")
-    public RestResponse createGenre(@ApiParam(value = "Input movie genre", required = true) @RequestBody Genre genre) {
+    public RestResponse insertGenre(@ApiParam(value = "Input movie genre", required = true) @RequestBody Genre genre) {
         try {
             Map<String, Object> map = movieService.insertGenre(genre);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
@@ -64,7 +64,7 @@ public class MovieController {
             }
             return new RestResponse(CommonConstants.CREATED, "Insert Genre Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed create genre", e);
         }
     }
 
@@ -83,7 +83,6 @@ public class MovieController {
             }
             return new RestResponse(CommonConstants.OK_REST_STATUS, "OK", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-//            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed get movie by title", e);
         }
     }
@@ -105,7 +104,6 @@ public class MovieController {
             return new RestResponse(CommonConstants.OK_REST_STATUS, "OK", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed get movie by genre", e);
-//            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
         }
     }
 
@@ -133,7 +131,7 @@ public class MovieController {
             }
             return new RestResponse(CommonConstants.OK_REST_STATUS, "Delete Movie Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
         } catch (Exception e) {
-            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed delete movie by id", e);
         }
     }
 
@@ -171,7 +169,7 @@ public class MovieController {
                 return new RestResponse(CommonConstants.NO_CONTENT, "No Content", new HashMap<String, Object>(), 0L);
             }
         } catch (Exception e) {
-            return new RestResponse(CommonConstants.INTERNAL_SERVER_ERROR, "Internal Server Error", new HashMap<String, Object>(), 0L);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed update movie by id", e);
         }
     }
 }

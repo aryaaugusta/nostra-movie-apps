@@ -2,8 +2,7 @@ package com.nostra.nostramovieapps.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -11,6 +10,8 @@ import java.util.List;
 @Entity(name = "MOVIE")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class Movie {
 
     @Id
@@ -22,7 +23,9 @@ public class Movie {
     @Column(name = "TITLE", length = 1000)
     private String title;
 
-    @ApiModelProperty(example = "Twenty-two years after the events of Jurassic Park, Isla Nublar now features a fully functioning dinosaur theme park, Jurassic World, as originally envisioned by John Hammond.", required = true)
+    @ApiModelProperty(example = "Twenty-two years after the events of Jurassic Park, " +
+            "Isla Nublar now features a fully functioning dinosaur theme park, Jurassic World, " +
+            "as originally envisioned by John Hammond.", required = true)
     @Column(name = "OVERVIEW", length = 1000)
     private String overview;
 
@@ -30,14 +33,26 @@ public class Movie {
     @Column(name = "VOTE_AVERAGE")
     private Double voteAverage;
 
-    //    @Transient
-//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
+    @ApiModelProperty(example = "2018-06-22", required = true)
+    @Column(name = "RELEASE_DATE")
+    private String releaseDate;
+
+    @Column(name = "POSTER_PATH")
+    private String posterPath;
+
+    @Column(name = "BACKDROP_PATH")
+    private String backdropPath;
+
+    @Column(name = "TRAILER_LINK")
+    private String trailerLink;
+
     @JsonManagedReference(value = "movieCrewId")
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
+    @ToString.Exclude
     private List<MovieCrew> movieCrewList;
 
-    //    @Transient
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
     @JsonManagedReference(value = "movieGenreId")
+    @ToString.Exclude
     private List<MovieGenre> movieGenreList;
 }

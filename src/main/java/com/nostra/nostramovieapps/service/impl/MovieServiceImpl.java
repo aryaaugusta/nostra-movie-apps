@@ -92,6 +92,10 @@ public class MovieServiceImpl implements MovieService {
             dto.setTitle(movie.getTitle());
             dto.setOverview(movie.getOverview());
             dto.setVoteAverage(movie.getVoteAverage());
+            dto.setReleaseDate(movie.getReleaseDate());
+            dto.setPosterPath(movie.getPosterPath());
+            dto.setBackdropPath(movie.getBackdropPath());
+            dto.setTrailerLink(movie.getTrailerLink());
             movieDtos.add(dto);
             map.put("contentData", movieDtos);
         }

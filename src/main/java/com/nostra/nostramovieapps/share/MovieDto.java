@@ -16,4 +16,8 @@ public class MovieDto {
     private String job;
     private String person;
     private String genre;
+    private String releaseDate;
+    private String posterPath;
+    private String backdropPath;
+    private String trailerLink;
 }
