@@ -37,12 +37,15 @@ public class Movie {
     @Column(name = "RELEASE_DATE")
     private String releaseDate;
 
+    @ApiModelProperty(example = "/A0LZHXUzo5C60Oahvt7VxvwuzHw.jpg", required = true)
     @Column(name = "POSTER_PATH")
     private String posterPath;
 
+    @ApiModelProperty(example = "/dF6FjTZzRTENfB4R17HDN20jLT2.jpg", required = true)
     @Column(name = "BACKDROP_PATH")
     private String backdropPath;
 
+    @ApiModelProperty(example = "https://www.youtube.com/watch?v=RFinNxS5KN4", required = true)
     @Column(name = "TRAILER_LINK")
     private String trailerLink;
 

@@ -26,9 +26,9 @@ public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    @ApiOperation(value = "Insert Movie", notes = "This method for save or input movie")
+    @ApiOperation(value = "Insert Movie", notes = "This method for create or input movie")
     @PostMapping("/insertMovie")
-    public RestResponse insertMovies(@ApiParam(value = "Input title,overview,rating value for the movie you need to insert", required = true) @RequestBody Movie movie) {
+    public RestResponse insertMovies(@ApiParam(value = "Input title, overview, rating value for the movie you need to insert", required = true) @RequestBody Movie movie) {
         try {
             Map<String, Object> map = movieService.insertMovies(movie);
             if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
