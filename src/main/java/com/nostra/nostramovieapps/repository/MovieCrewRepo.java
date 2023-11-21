@@ -16,23 +16,21 @@ public interface MovieCrewRepo extends JpaRepository<MovieCrew, Long> {
     @Query("SELECT x.person.name as name FROM MOVIE_CREW x left outer join MOVIE m on m.id = x.person.id WHERE m.id = :id")
     Optional<MovieCrew> findByMovieId(Long id);
 
-    @Query("SELECT m.title as title, m.overview as overview, m.voteAverage as voteAverage, x.job as job, p.name as director " +
-            "FROM MOVIE_CREW x left outer join MOVIE m on m.id = x.person.id " +
-            "left outer join PERSON p on p.id = x.person.id WHERE m.title like :search")
+    @Query("SELECT m.id as id, m.title as title, m.overview as overview, m.voteAverage as voteAverage, " +
+            "m.backdropPath as backdropPath, m.posterPath as posterPath, m.releaseDate as releaseDate, m.trailerLink as trailerLink, " +
+            "x.job as job, x.person.name as director FROM MOVIE_CREW x left outer join MOVIE m on m.id = x.movie.id " +
+            "WHERE lower(m.title) LIKE CONCAT('%',:search,'%')")
     List<Object[]> getMovieDetailByTitle(String search);
 
-    /*@Query(value = "select m.*, mc.job, g.name as genre, p.name as director " +
-            "from nostra_movie.nostra.movie m " +
-            "left join nostra_movie.nostra.movie_crew mc on mc.id_movie = m.id " +
-            "left join nostra_movie.nostra.movie_genre mg on mg.id_movie = m.id " +
-            "left join nostra_movie.nostra.genre g on g.id = mg.id_genre " +
-            "left join nostra_movie.nostra.person p on p.id = mc.id_person " +
-            "where (m.title like :search or g.name like :search)", nativeQuery = true)*/
-    @Query("SELECT m.id as id, m.title as title, m.overview as overview, m.voteAverage as voteAverage, mc.job as job," +
-            "g.name as genre, p.name as person " +
-            "FROM MOVIE m left outer join MOVIE_CREW mc on mc.movie.id = m.id " +
-            "left outer join MOVIE_GENRE mg on mg.genre.id = m.id left outer join GENRE g on g.id = mg.genre.id " +
-            "left outer join PERSON p on p.id = mc.person.id WHERE (m.title like :search or g.name like :search)")
+    @Query("SELECT m.id as id, m.title as title, m.overview as overview, m.voteAverage as voteAverage, " +
+            "m.backdropPath as backdropPath, m.posterPath as posterPath, m.releaseDate as releaseDate, m.trailerLink as trailerLink, " +
+            "x.job as job, x.person.name as director, g.name as genre FROM MOVIE_CREW x left outer join MOVIE m on m.id = x.movie.id " +
+            "left outer join MOVIE_GENRE mg on mg.movie.id = m.id left outer join GENRE g on g.id = mg.genre.id " +
+            "WHERE lower(g.name) LIKE CONCAT('%',:search,'%')")
+    List<Object[]> getMovieDetailByGenre(String search);
+
+    @Query("SELECT x.movie.id as id, x.genre.name as genre FROM MOVIE_GENRE x left outer join MOVIE m on m.id = x.movie.id " +
+            "WHERE lower(x.genre.name) LIKE CONCAT('%',:search,'%')")
     List<Object[]> getMovieByGenre(String search);
 
     @Modifying(clearAutomatically = true)
