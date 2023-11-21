@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieServiceImpl implements MovieService {
@@ -157,24 +158,48 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Map<String, Object> getMovieByGenre(Map<String, Object> mapInput, String search) {
-
-        if (search.equals("")) {
-            search = "%%";
-        } else {
-            search = "%" + search + "%";
-        }
-        List<Object[]> objectsMovieByGenre = movieCrewRepo.getMovieByGenre(search);
+        List<Object[]> objectsGenre = movieCrewRepo.getMovieByGenre(search);
+        List<Object[]> objectsMovie = movieCrewRepo.getMovieDetailByGenre(search);
         List<MovieDto> movieDtos = new ArrayList<>();
-        for (Object[] data : objectsMovieByGenre) {
+        List<MovieDto> genreDtos = new ArrayList<>();
+        List<MovieDto> listMovie = new ArrayList<>();
+        for (Object[] dataGenre : objectsGenre) {
+            MovieDto dto = new MovieDto();
+            dto.setId((long) dataGenre[0]);
+            dto.setGenre((String) dataGenre[1]);
+            genreDtos.add(dto);
+        }
+        for (Object[] data : objectsMovie) {
             MovieDto dto = new MovieDto();
             dto.setId((Long) data[0]);
             dto.setTitle((String) data[1]);
             dto.setOverview((String) data[2]);
             dto.setVoteAverage((Double) data[3]);
-            dto.setJob((String) data[4]);
-            dto.setGenre((String) data[5]);
-            dto.setPerson((String) data[6]);
+            dto.setBackdropPath((String) data[4]);
+            dto.setPosterPath((String) data[5]);
+            dto.setReleaseDate((String) data[6]);
+            dto.setTrailerLink((String) data[7]);
+            dto.setJob((String) data[8]);
+            dto.setPerson((String) data[9]);
+            dto.setGenre((String) data[10]);
+            String[] array = new String[genreDtos.size()];
+            for (int x = 0; x < genreDtos.size(); x++) {
+                if (dto.getId().equals(genreDtos.get(x).getId())) {
+                    array[x] = String.valueOf(genreDtos.get(x).getGenre());
+                }
+            }
+            array = Arrays.stream(array).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
+            String resultGenre = String.join(", ", array);
+            dto.setGenre(resultGenre);
             movieDtos.add(dto);
+        }
+        for (int i = 0; i < movieDtos.size(); i++) {
+            for (int j = i + 1; j < movieDtos.size(); j++) {
+                if (movieDtos.get(i).getTitle().equals(movieDtos.get(j).getTitle())) {
+                    movieDtos.remove(j);
+                    j--;
+                }
+            }
         }
         Map<String, Object> map = new HashMap<>();
         map.put("contentData", movieDtos);
@@ -184,12 +209,6 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Map<String, Object> getMovieByTitle(Map<String, Object> mapInput, String search) {
-
-        if (search.equals("")) {
-            search = "%%";
-        } else {
-            search = "%" + search + "%";
-        }
         List<Object[]> objectsMovie = movieCrewRepo.getMovieDetailByTitle(search);
         List<Object[]> objectsGenre = movieGenreRepo.getGenreByTitle(search);
         List<MovieDto> movieDtos = new ArrayList<>();
@@ -206,8 +225,12 @@ public class MovieServiceImpl implements MovieService {
             dto.setTitle((String) data[1]);
             dto.setOverview((String) data[2]);
             dto.setVoteAverage((Double) data[3]);
-            dto.setJob((String) data[4]);
-            dto.setPerson((String) data[5]);
+            dto.setBackdropPath((String) data[4]);
+            dto.setPosterPath((String) data[5]);
+            dto.setReleaseDate((String) data[6]);
+            dto.setTrailerLink((String) data[7]);
+            dto.setJob((String) data[8]);
+            dto.setPerson((String) data[9]);
             String[] array = new String[genreDtos.size()];
             for (int x = 0; x < genreDtos.size(); x++) {
                 if (genreDtos.get(x).getId().equals(dto.getId())) {
