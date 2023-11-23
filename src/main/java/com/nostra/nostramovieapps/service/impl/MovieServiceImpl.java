@@ -1,329 +1,180 @@
 package com.nostra.nostramovieapps.service.impl;
 
-import com.nostra.nostramovieapps.entity.*;
-import com.nostra.nostramovieapps.repository.*;
+import com.nostra.nostramovieapps.dto.genre.MovieGenreDTO;
+import com.nostra.nostramovieapps.dto.movie.MovieDTO;
+import com.nostra.nostramovieapps.dto.movie.MovieDetailDTO;
+import com.nostra.nostramovieapps.dto.search.Filter;
+import com.nostra.nostramovieapps.dto.search.SearchRequest;
+import com.nostra.nostramovieapps.dto.search.SearchResult;
+import com.nostra.nostramovieapps.entity.enums.Status;
+import com.nostra.nostramovieapps.entity.genre.Genre;
+import com.nostra.nostramovieapps.entity.genre.MovieGenre;
+import com.nostra.nostramovieapps.entity.movie.Movie;
+import com.nostra.nostramovieapps.entity.movie.MovieDetail;
+import com.nostra.nostramovieapps.exception.NotFoundException;
+import com.nostra.nostramovieapps.repository.GenreRepository;
+import com.nostra.nostramovieapps.repository.MovieDetailRepository;
+import com.nostra.nostramovieapps.repository.MovieGenreRepository;
+import com.nostra.nostramovieapps.repository.MovieRepository;
 import com.nostra.nostramovieapps.service.MovieService;
-import com.nostra.nostramovieapps.share.MovieDto;
+import com.nostra.nostramovieapps.util.QueryGenerator;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import java.math.BigInteger;
-import java.util.*;
+import javax.transaction.Transactional;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.jpa.domain.Specification.where;
 
 @Service
 public class MovieServiceImpl implements MovieService {
 
     @Autowired
-    MovieRepo movieRepo;
+    MovieRepository movieRepository;
 
     @Autowired
-    GenreRepo genreRepo;
+    MovieDetailRepository movieDetailRepository;
 
     @Autowired
-    MovieCrewRepo movieCrewRepo;
+    MovieGenreRepository movieGenreRepository;
 
     @Autowired
-    MovieGenreRepo movieGenreRepo;
+    GenreRepository genreRepository;
 
     @Autowired
-    PersonRepo personRepo;
+    private QueryGenerator queryGenerator;
 
     @Override
-    public List<Movie> getAllMovies() {
-        return movieRepo.findAll();
+    public MovieDTO findBy(Long id) {
+        return convertToMovieDTO(checkIfRecordExist(id));
     }
 
     @Override
     @Transactional
-    public Map<String, Object> insertMovies(Movie movie) {
+    public MovieDTO createMovie(MovieDTO input) {
+        Movie movie = new Movie();
+        BeanUtils.copyProperties(input, movie);
+        movie.setStatus(Status.ACTIVE);
+        movie.setCreatedBy("Arya");
+        movie.setCreatedAt(ZonedDateTime.now());
+        Movie saved = movieRepository.save(movie);
 
-        Optional<Movie> moviesOptional = movieRepo.findMovieByTitleLike(movie.getTitle());
-        List<MovieDto> movieDtos = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
-        if (moviesOptional.isPresent()) {
-            System.out.println("movie optional = " + moviesOptional.get());
-            map.put("contentData", "Movie with given title already exists !");
-            try {
-                throw new Exception("Movie with given title already exists");
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (!CollectionUtils.isEmpty(input.getMovieDetails())) {
+            for (MovieDetailDTO detail : input.getMovieDetails()) {
+                MovieDetail movieDetail = new MovieDetail();
+                BeanUtils.copyProperties(detail, movieDetail);
+                movieDetail.setMovie(saved);
+                movieDetailRepository.save(movieDetail);
             }
-        } else {
-            movieRepo.save(movie);
-            MovieDto dto = new MovieDto();
-            if (movie.getMovieCrewList() != null) {
-                for (int i = 0; i < movie.getMovieCrewList().size(); i++) {
-                    Optional<Person> personOptional = personRepo.findPersonByNameLike(movie.getMovieCrewList().get(i).getPerson().getName());
-                    MovieCrew movieCrew = new MovieCrew();
-                    movieCrew.setMovie(movie);
-                    movieCrew.setJob(movie.getMovieCrewList().get(i).getJob());
-                    movieCrew.setPerson(personOptional.get());
-                    movieCrewRepo.save(movieCrew);
-                    String[] array = new String[movie.getMovieCrewList().size()];
-                    for (int x = 0; x < movie.getMovieCrewList().size(); x++) {
-                        array[x] = String.valueOf(movie.getMovieCrewList().get(x).getPerson().getName());
-                    }
-                    array = Arrays.stream(array).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
-                    String resultPerson = String.join(", ", array);
-                    dto.setPerson(resultPerson);
-                    dto.setJob(movieCrew.getJob());
-                }
-            }
-
-            if (movie.getMovieGenreList() != null) {
-                for (int i = 0; i < movie.getMovieGenreList().size(); i++) {
-                    Optional<Genre> genreOptional = genreRepo.findGenreByNameLike(movie.getMovieGenreList().get(i).getGenre().getName());
-                    MovieGenre movieGenre = new MovieGenre();
-                    movieGenre.setMovie(movie);
-                    movieGenre.setGenre(genreOptional.get());
-                    movieGenreRepo.save(movieGenre);
-                    String[] array = new String[movie.getMovieGenreList().size()];
-                    for (int x = 0; x < movie.getMovieGenreList().size(); x++) {
-                        array[x] = String.valueOf(movie.getMovieGenreList().get(x).getGenre().getName());
-                    }
-                    array = Arrays.stream(array).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
-                    String resultGenre = String.join(", ", array);
-                    dto.setGenre(resultGenre);
-                }
-            }
-
-            dto.setId(movie.getId());
-            dto.setTitle(movie.getTitle());
-            dto.setOverview(movie.getOverview());
-            dto.setVoteAverage(movie.getVoteAverage());
-            dto.setReleaseDate(movie.getReleaseDate());
-            dto.setPosterPath(movie.getPosterPath());
-            dto.setBackdropPath(movie.getBackdropPath());
-            dto.setTrailerLink(movie.getTrailerLink());
-            movieDtos.add(dto);
-            map.put("contentData", movieDtos);
         }
-        map.put("totalRecords", (long) movieDtos.size());
-        return map;
+
+        if (!CollectionUtils.isEmpty(input.getMovieGenres())) {
+            for (MovieGenreDTO detail : input.getMovieGenres()) {
+                MovieGenre movieGenre = new MovieGenre();
+                Long movieGenreId = detail.getGenre().getId();
+                BeanUtils.copyProperties(detail, movieGenre);
+                Optional<Genre> optionalGenre = genreRepository.findById(movieGenreId);
+                if (optionalGenre.isPresent()) {
+                    movieGenre.setMovie(saved);
+                    movieGenre.setGenre(optionalGenre.get());
+                    movieGenreRepository.save(movieGenre);
+                }
+            }
+        }
+
+        input.setId(saved.getId());
+        input.setVersion(saved.getVersion());
+        return input;
+    }
+
+    @Override
+    public SearchResult<MovieDTO> searchBy(SearchRequest searchRequest) {
+        Specification<Movie> specs = where(queryGenerator.createDefaultSpec());
+
+        if (!CollectionUtils.isEmpty(searchRequest.getFilters())) {
+            for (Filter filter : searchRequest.getFilters()) {
+                specs = specs.and(queryGenerator.createSpecification(filter));
+            }
+        }
+
+        Page<Movie> pgMovie = movieRepository.findAll(specs, queryGenerator.constructPageable(searchRequest));
+
+        SearchResult<MovieDTO> result = new SearchResult<>();
+        result.setTotalRows(pgMovie.getTotalElements());
+        result.setTotalPages(pgMovie.getTotalPages());
+        result.setCurrentPageNumber(pgMovie.getPageable().getPageNumber());
+        result.setCurrentPageSize(pgMovie.getNumberOfElements());
+        result.setRows(pgMovie.getContent().stream().map(movie -> convertToMovieDTO(movie)).collect(Collectors.toList()));
+
+        return result;
     }
 
     @Override
     @Transactional
-    public Map<String, Object> insertPerson(Person person) {
+    public MovieDTO editMovie(MovieDTO input) {
+        Movie found = checkIfRecordExist(input.getId());
+        BeanUtils.copyProperties(input, found);
+        movieRepository.save(found);
 
-        Optional<Person> personOptional = personRepo.findPersonByNameLike(person.getName());
-        List<MovieDto> movieDtos = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
-        if (personOptional.isPresent()) {
-            System.out.println("person optional = " + personOptional.get());
-            map.put("contentData", "Person with given name already exists !");
-            try {
-                throw new Exception("Person with given name already exists");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            personRepo.save(person);
-            MovieDto dto = new MovieDto();
-            dto.setPerson(person.getName());
-            movieDtos.add(dto);
-            map.put("contentData", person);
-        }
-        map.put("totalRecords", (long) movieDtos.size());
-        return map;
-    }
-
-    @Override
-    @Transactional
-    public Map<String, Object> insertGenre(Genre genre) {
-
-        Optional<Genre> genreOptional = genreRepo.findGenreByNameLike(genre.getName());
-        List<MovieDto> movieDtos = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
-        if (genreOptional.isPresent()) {
-            System.out.println("genre optional = " + genreOptional.get());
-            map.put("contentData", "Genre with given genre name already exists !");
-            try {
-                throw new Exception("Genre with given genre name already exists");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            genreRepo.save(genre);
-            MovieDto dto = new MovieDto();
-            dto.setGenre(genre.getName());
-            movieDtos.add(dto);
-            map.put("contentData", genre);
-        }
-        map.put("totalRecords", (long) movieDtos.size());
-        return map;
-    }
-
-    @Override
-    public Map<String, Object> getMovieByGenre(Map<String, Object> mapInput, String search) {
-        List<Object[]> objectsGenre = movieCrewRepo.getMovieByGenre(search);
-        List<Object[]> objectsMovie = movieCrewRepo.getMovieDetailByGenre(search);
-        List<MovieDto> movieDtos = new ArrayList<>();
-        List<MovieDto> genreDtos = new ArrayList<>();
-        List<MovieDto> listMovie = new ArrayList<>();
-        for (Object[] dataGenre : objectsGenre) {
-            MovieDto dto = new MovieDto();
-            dto.setId((long) dataGenre[0]);
-            dto.setGenre((String) dataGenre[1]);
-            genreDtos.add(dto);
-        }
-        for (Object[] data : objectsMovie) {
-            MovieDto dto = new MovieDto();
-            dto.setId((Long) data[0]);
-            dto.setTitle((String) data[1]);
-            dto.setOverview((String) data[2]);
-            dto.setVoteAverage((Double) data[3]);
-            dto.setBackdropPath((String) data[4]);
-            dto.setPosterPath((String) data[5]);
-            dto.setReleaseDate((String) data[6]);
-            dto.setTrailerLink((String) data[7]);
-            dto.setJob((String) data[8]);
-            dto.setPerson((String) data[9]);
-            dto.setGenre((String) data[10]);
-            String[] array = new String[genreDtos.size()];
-            for (int x = 0; x < genreDtos.size(); x++) {
-                if (dto.getId().equals(genreDtos.get(x).getId())) {
-                    array[x] = String.valueOf(genreDtos.get(x).getGenre());
-                }
-            }
-            array = Arrays.stream(array).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
-            String resultGenre = String.join(", ", array);
-            dto.setGenre(resultGenre);
-            movieDtos.add(dto);
-        }
-        for (int i = 0; i < movieDtos.size(); i++) {
-            for (int j = i + 1; j < movieDtos.size(); j++) {
-                if (movieDtos.get(i).getTitle().equals(movieDtos.get(j).getTitle())) {
-                    movieDtos.remove(j);
-                    j--;
+        if (!CollectionUtils.isEmpty(input.getMovieDetails())) {
+            for (MovieDetailDTO movieDetailDTO : input.getMovieDetails()) {
+                Long movieDetId = movieDetailDTO.getId();
+                Optional<MovieDetail> optionalMovieDet = movieDetailRepository.findById(movieDetId);
+                if (optionalMovieDet.isPresent()) {
+                    MovieDetail movieDetail = optionalMovieDet.get();
+                    movieDetail.setOverview(movieDetailDTO.getOverview());
+                    movieDetail.setReleaseDate(movieDetailDTO.getReleaseDate());
+                    movieDetail.setVoteAverage(movieDetailDTO.getVoteAverage());
+                    movieDetail.setBackdropPath(movieDetailDTO.getBackdropPath());
+                    movieDetail.setPosterPath(movieDetailDTO.getPosterPath());
+                    movieDetail.setTrailerLink(movieDetailDTO.getTrailerLink());
+                    movieDetailRepository.save(movieDetail);
                 }
             }
         }
-        Map<String, Object> map = new HashMap<>();
-        map.put("contentData", movieDtos);
-        map.put("totalRecords", (long) movieDtos.size());
-        return map;
+
+        return input;
     }
 
     @Override
-    public Map<String, Object> getMovieByTitle(Map<String, Object> mapInput, String search) {
-        List<Object[]> objectsMovie = movieCrewRepo.getMovieDetailByTitle(search);
-        List<Object[]> objectsGenre = movieGenreRepo.getGenreByTitle(search);
-        List<MovieDto> movieDtos = new ArrayList<>();
-        List<MovieDto> genreDtos = new ArrayList<>();
-        for (Object[] dataGenre : objectsGenre) {
-            MovieDto dto = new MovieDto();
-            dto.setId((long) dataGenre[0]);
-            dto.setGenre((String) dataGenre[1]);
-            genreDtos.add(dto);
+    public void deleteMovie(Long id) {
+        Movie movie = checkIfRecordExist(id);
+        movie.setStatus(Status.DELETED);
+        movie.setUpdatedBy("Arya");
+        movie.setUpdatedAt(ZonedDateTime.now());
+        movieRepository.save(movie);
+    }
+
+    private Movie checkIfRecordExist(Long id) {
+        Optional<Movie> optionalItem = movieRepository.findById(id);
+
+        if (!optionalItem.isPresent()) {
+            throw new NotFoundException("Record is not found");
         }
-        for (Object[] data : objectsMovie) {
-            MovieDto dto = new MovieDto();
-            dto.setId((Long) data[0]);
-            dto.setTitle((String) data[1]);
-            dto.setOverview((String) data[2]);
-            dto.setVoteAverage((Double) data[3]);
-            dto.setBackdropPath((String) data[4]);
-            dto.setPosterPath((String) data[5]);
-            dto.setReleaseDate((String) data[6]);
-            dto.setTrailerLink((String) data[7]);
-            dto.setJob((String) data[8]);
-            dto.setPerson((String) data[9]);
-            String[] array = new String[genreDtos.size()];
-            for (int x = 0; x < genreDtos.size(); x++) {
-                if (genreDtos.get(x).getId().equals(dto.getId())) {
-                    array[x] = String.valueOf(genreDtos.get(x).getGenre());
-                }
-            }
-            array = Arrays.stream(array).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
-            String resultGenre = String.join(", ", array);
-            dto.setGenre(resultGenre);
-            movieDtos.add(dto);
+        return optionalItem.get();
+    }
+
+    private MovieDTO convertToMovieDTO(Movie movie) {
+        Set<MovieDetailDTO> movieDetails = new HashSet<>();
+        if (!CollectionUtils.isEmpty(movie.getMovieDetails())) {
+            movieDetails = movie.getMovieDetails().stream().map(detail -> {
+                MovieDetailDTO movieDetail = MovieDetailDTO.builder().build();
+                BeanUtils.copyProperties(detail, movieDetail);
+                return movieDetail;
+            }).collect(Collectors.toSet());
         }
-        Map<String, Object> map = new HashMap<>();
-        map.put("contentData", movieDtos);
-        map.put("totalRecords", (long) movieDtos.size());
-        return map;
-    }
-
-    @Override
-    public Map<String, Object> deleteMovieById(Long id) {
-
-        Optional<Movie> movieOptional = movieRepo.findById(id);
-        Optional<MovieCrew> movieCrewOptional = movieCrewRepo.findByMovieId(movieOptional.get().getId());
-        List<MovieGenre> movieGenreList = movieGenreRepo.findByMovieId(movieOptional.get().getId());
-        List<MovieDto> movieDtos = new ArrayList<>();
-        if (!movieOptional.isPresent()) {
-            try {
-                throw new Exception("Movie with " + id + " not found");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            if (movieCrewOptional.isPresent() && movieGenreList != null) {
-                Movie movie = movieOptional.get();
-                movieCrewRepo.deleteMovieCrewById(movie.getId());
-                movieGenreRepo.deleteMovieGenreById(movie.getId());
-                movieRepo.deleteMovieById(movie.getId());
-                MovieDto dto = new MovieDto();
-                dto.setId(id);
-                dto.setTitle(movie.getTitle());
-                dto.setOverview(movie.getOverview());
-                dto.setVoteAverage(movie.getVoteAverage());
-                movieDtos.add(dto);
-            }
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("contentData", movieDtos);
-        map.put("totalRecords", (long) movieDtos.size());
-        return map;
-    }
-
-    @Override
-    public void deleteAllMovie() {
-        movieRepo.deleteAll();
-    }
-
-    @Override
-    public Optional<Movie> findById(long id) {
-        return movieRepo.findById(id);
-    }
-
-    @Override
-    @Transactional
-    public Map<String, Object> updateMovieById(Map<String, Object> mapInput, Long id, String title, String overview, Double voteAverage) {
-
-        Optional<Movie> movieWithId = movieRepo.findById(id);
-        Optional<Movie> movieWithSameTitle = movieRepo.findMovieByTitleLike(title);
-        List<MovieDto> movieDtos = new ArrayList<>();
-        if (movieWithId.isPresent()) {
-            if (movieWithSameTitle.isPresent()) {
-                try {
-                    throw new Exception("Movie with given title already exists");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            movieRepo.updateMovieById(id, title, overview, voteAverage);
-            MovieDto dto = new MovieDto();
-            dto.setId(id);
-            dto.setTitle(title);
-            dto.setOverview(overview);
-            dto.setVoteAverage(voteAverage);
-            movieDtos.add(dto);
-        } else {
-            try {
-                throw new Exception("Movie with " + id + " not found");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("contentData", movieDtos);
-        map.put("totalRecords", (long) movieDtos.size());
-        return map;
+        MovieDTO movieDTO = MovieDTO.builder().build();
+        BeanUtils.copyProperties(movie.getId(), movieDTO);
+        BeanUtils.copyProperties(movie, movieDTO);
+        movieDTO.setMovieDetails(movieDetails);
+        return movieDTO;
     }
 }

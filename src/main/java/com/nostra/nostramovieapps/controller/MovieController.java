@@ -1,72 +1,55 @@
 package com.nostra.nostramovieapps.controller;
 
-import com.nostra.nostramovieapps.common.model.RestResponse;
-import com.nostra.nostramovieapps.common.util.CommonConstants;
-import com.nostra.nostramovieapps.entity.Genre;
-import com.nostra.nostramovieapps.entity.Movie;
-import com.nostra.nostramovieapps.entity.Person;
+import com.nostra.nostramovieapps.dto.movie.MovieDTO;
+import com.nostra.nostramovieapps.dto.search.SearchRequest;
+import com.nostra.nostramovieapps.dto.search.SearchResult;
 import com.nostra.nostramovieapps.service.MovieService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/nostramovie")
-@Api(value = "Nostra Movie Apps API", description = "API to control all operation in Nostra Movie Apps")
+@RequestMapping("api/nostramovie/movie")
+@Api(value = "Nostra Movie Apps API", description = "API to control movie in Nostra Movie Apps")
 public class MovieController {
 
     @Autowired
     private MovieService movieService;
 
-    @ApiOperation(value = "Insert Movie", notes = "This method for create or input movie")
-    @PostMapping("/insertMovie")
-    public RestResponse insertMovies(@ApiParam(value = "Input title, overview, rating value for the movie you need to insert", required = true) @RequestBody Movie movie) {
-        try {
-            Map<String, Object> map = movieService.insertMovies(movie);
-            if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
-                return new RestResponse(CommonConstants.CONFLICT, "Insert Movie Failed !", map.get("contentData"), (long) map.get("totalRecords"));
-            }
-            return new RestResponse(CommonConstants.CREATED, "Insert Movie Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed create movie", e);
-        }
+    @ApiOperation(value = "create", notes = "This method for create movie")
+    @PostMapping
+    public ResponseEntity<MovieDTO> create(@ApiParam(value = "Input title, overview, rating value for the movie you need to insert", required = true)
+                                           @RequestBody MovieDTO movie) {
+        return new ResponseEntity<>(movieService.createMovie(movie), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Insert Person", notes = "This method for save or input person name")
-    @PostMapping("/insertPerson")
-    public RestResponse insertPerson(@ApiParam(value = "Input person name ex. director name, producer name etc", required = true) @RequestBody Person person) {
-        try {
-            Map<String, Object> map = movieService.insertPerson(person);
-            if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
-                return new RestResponse(CommonConstants.CONFLICT, "Insert Person Failed !", map.get("contentData"), (long) map.get("totalRecords"));
-            }
-            return new RestResponse(CommonConstants.CREATED, "Insert Person Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed create person", e);
-        }
+    @GetMapping("{id}")
+    public ResponseEntity<MovieDTO> get(@PathVariable Long id) {
+        return new ResponseEntity<>(movieService.findBy(id), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Insert Genre", notes = "This method for save or input genre")
-    @PostMapping("/insertGenre")
-    public RestResponse insertGenre(@ApiParam(value = "Input movie genre", required = true) @RequestBody Genre genre) {
-        try {
-            Map<String, Object> map = movieService.insertGenre(genre);
-            if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
-                return new RestResponse(CommonConstants.CONFLICT, "Insert Genre Failed !", map.get("contentData"), (long) map.get("totalRecords"));
-            }
-            return new RestResponse(CommonConstants.CREATED, "Insert Genre Successfully !", map.get("contentData"), (long) map.get("totalRecords"));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed create genre", e);
-        }
+    @PutMapping("{id}")
+    public ResponseEntity<MovieDTO> edit(@RequestBody MovieDTO movie,
+                                         @PathVariable Long id) {
+        movie.setId(id);
+        return new ResponseEntity<>(movieService.editMovie(movie), HttpStatus.OK);
     }
+
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        movieService.deleteMovie(id);
+    }
+
+    @PostMapping("search")
+    public ResponseEntity<SearchResult<MovieDTO>> search(@RequestBody SearchRequest searchRequest) {
+        return new ResponseEntity<>(movieService.searchBy(searchRequest), HttpStatus.OK);
+    }
+    /*
 
     @ApiOperation(value = "Get Movie By Title", notes = "This method for get all movie or filter or search movie by title")
     @ApiImplicitParams(@ApiImplicitParam(name = "mapInput", dataType = "ApplicationProperties2",
@@ -121,6 +104,20 @@ public class MovieController {
         }
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<MovieDTO> get(@PathVariable Long id) {
+        try {
+            String search = (String) mapInput.get("search");
+            Map<String, Object> map = movieService.findById(mapInput, search);
+            if (map.get("totalRecords").toString().equalsIgnoreCase("0")) {
+                return new RestResponse(CommonConstants.NO_CONTENT, "No Content", map.get("contentData"), (long) map.get("totalRecords"));
+            }
+            return new RestResponse(CommonConstants.OK_REST_STATUS, "OK", map.get("contentData"), (long) map.get("totalRecords"));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed get movie by genre", e);
+        }
+    }
+
     @ApiOperation(value = "Delete Movie by Id Movie", notes = "This method for delete movie by id movie")
     @DeleteMapping("/deleteMovie/{id}")
     public RestResponse deleteMovieById(@ApiParam(value = "ID Movie value for the movie you need to deleted", required = true) @PathVariable("id") Long id) {
@@ -171,5 +168,5 @@ public class MovieController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed update movie by id", e);
         }
-    }
+    }*/
 }

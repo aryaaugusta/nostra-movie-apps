@@ -1,33 +1,17 @@
 package com.nostra.nostramovieapps.service;
 
-import com.nostra.nostramovieapps.entity.Genre;
-import com.nostra.nostramovieapps.entity.Movie;
-import com.nostra.nostramovieapps.entity.Person;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.nostra.nostramovieapps.dto.movie.MovieDTO;
+import com.nostra.nostramovieapps.dto.search.SearchRequest;
+import com.nostra.nostramovieapps.dto.search.SearchResult;
 
 public interface MovieService {
+    MovieDTO findBy(Long id);
 
-    List<Movie> getAllMovies();
+    MovieDTO createMovie(MovieDTO input);
 
-    Map<String, Object> insertMovies(Movie movie);
+    SearchResult<MovieDTO> searchBy(SearchRequest searchRequest);
 
-    Map<String, Object> deleteMovieById(Long id);
+    MovieDTO editMovie(MovieDTO input);
 
-    void deleteAllMovie();
-
-    Optional<Movie> findById(long id);
-
-    Map<String, Object> insertPerson(Person person);
-
-    Map<String, Object> insertGenre(Genre genre);
-
-    Map<String, Object> getMovieByTitle(Map<String, Object> mapInput, String title);
-
-    Map<String, Object> getMovieByGenre(Map<String, Object> mapInput, String search);
-
-    Map<String, Object> updateMovieById(Map<String, Object> mapInput, Long id, String title, String overview, Double voteAverage);
-
+    void deleteMovie(Long id);
 }
