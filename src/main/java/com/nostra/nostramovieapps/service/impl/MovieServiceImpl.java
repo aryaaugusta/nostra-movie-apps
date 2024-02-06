@@ -8,6 +8,7 @@ import com.nostra.nostramovieapps.dto.search.SearchRequest;
 import com.nostra.nostramovieapps.dto.search.SearchResult;
 import com.nostra.nostramovieapps.entity.enums.Status;
 import com.nostra.nostramovieapps.entity.genre.Genre;
+import com.nostra.nostramovieapps.entity.genre.GenreProjection;
 import com.nostra.nostramovieapps.entity.genre.MovieGenre;
 import com.nostra.nostramovieapps.entity.movie.Movie;
 import com.nostra.nostramovieapps.entity.movie.MovieDetail;
@@ -79,9 +80,9 @@ public class MovieServiceImpl implements MovieService {
         if (!CollectionUtils.isEmpty(input.getMovieGenres())) {
             for (MovieGenreDTO detail : input.getMovieGenres()) {
                 MovieGenre movieGenre = new MovieGenre();
-                Long movieGenreId = detail.getGenre().getId();
+                Long genreId = detail.getGenre().getId();
                 BeanUtils.copyProperties(detail, movieGenre);
-                Optional<Genre> optionalGenre = genreRepository.findById(movieGenreId);
+                Optional<Genre> optionalGenre = genreRepository.findById(genreId);
                 if (optionalGenre.isPresent()) {
                     movieGenre.setMovie(saved);
                     movieGenre.setGenre(optionalGenre.get());
@@ -122,6 +123,9 @@ public class MovieServiceImpl implements MovieService {
     public MovieDTO editMovie(MovieDTO input) {
         Movie found = checkIfRecordExist(input.getId());
         BeanUtils.copyProperties(input, found);
+        found.setUpdatedBy("Arya");
+        found.setUpdatedAt(ZonedDateTime.now());
+        found.setStatus(Status.ACTIVE);
         movieRepository.save(found);
 
         if (!CollectionUtils.isEmpty(input.getMovieDetails())) {
@@ -137,6 +141,18 @@ public class MovieServiceImpl implements MovieService {
                     movieDetail.setPosterPath(movieDetailDTO.getPosterPath());
                     movieDetail.setTrailerLink(movieDetailDTO.getTrailerLink());
                     movieDetailRepository.save(movieDetail);
+                }
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(input.getMovieGenres())) {
+            for (MovieGenreDTO movieGenrelDTO : input.getMovieGenres()) {
+                MovieGenre movieGenre = new MovieGenre();
+                Long genreId = movieGenrelDTO.getGenre().getId();
+                Optional<Genre> optionalGenre = genreRepository.findById(genreId);
+                if (optionalGenre.isPresent()) {
+                    movieGenre.setGenre(optionalGenre.get());
+                    movieGenreRepository.save(movieGenre);
                 }
             }
         }
@@ -164,6 +180,7 @@ public class MovieServiceImpl implements MovieService {
 
     private MovieDTO convertToMovieDTO(Movie movie) {
         Set<MovieDetailDTO> movieDetails = new HashSet<>();
+        Set<MovieGenreDTO> movieGenres = new HashSet<>();
         if (!CollectionUtils.isEmpty(movie.getMovieDetails())) {
             movieDetails = movie.getMovieDetails().stream().map(detail -> {
                 MovieDetailDTO movieDetail = MovieDetailDTO.builder().build();
@@ -171,10 +188,22 @@ public class MovieServiceImpl implements MovieService {
                 return movieDetail;
             }).collect(Collectors.toSet());
         }
+        if (!CollectionUtils.isEmpty(movie.getMovieGenres())) {
+            movieGenres = movie.getMovieGenres().stream().map(detail -> {
+                MovieGenreDTO movieGenre = MovieGenreDTO.builder().build();
+                GenreProjection genreProjection = genreRepository.getIdAndNameGenre(detail.getGenre().getId());
+                if (genreProjection != null) {
+                    movieGenre = MovieGenreDTO.builder().genreId(genreProjection.getId()).name(genreProjection.getName()).build();
+                }
+                BeanUtils.copyProperties(detail, movieGenre);
+                return movieGenre;
+            }).collect(Collectors.toSet());
+        }
         MovieDTO movieDTO = MovieDTO.builder().build();
         BeanUtils.copyProperties(movie.getId(), movieDTO);
         BeanUtils.copyProperties(movie, movieDTO);
         movieDTO.setMovieDetails(movieDetails);
+        movieDTO.setMovieGenres(movieGenres);
         return movieDTO;
     }
 }
