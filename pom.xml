@@ -12,7 +12,7 @@
     <artifactId>nostra-movie-apps</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>nostra-movie-apps</name>
-    <description>Nostra Backend Developer Assignment</description>
+    <description>Nostra Movies</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
