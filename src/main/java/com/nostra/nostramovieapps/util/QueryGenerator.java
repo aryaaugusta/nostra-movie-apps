@@ -40,7 +40,7 @@ public class QueryGenerator {
                     strValue = input.getValue();
                 }
 
-                return (root, query, criteriaBuilder) -> // add by Arya (case-insensitive like matching anywhere)
+                return (root, query, criteriaBuilder) ->
                         criteriaBuilder.like(criteriaBuilder.lower(root.get(input.getField())), "%" + strValue.toLowerCase(Locale.ROOT) + "%", '\\');
             default:
                 throw new RuntimeException("Operation not supported yet");
@@ -63,7 +63,7 @@ public class QueryGenerator {
                     strValue = input.getValue();
                 }
 
-                return (root, query, criteriaBuilder) -> // add by Arya (case-insensitive like matching anywhere)
+                return (root, query, criteriaBuilder) ->
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("id").get(input.getField())), "%" + strValue.toLowerCase(Locale.ROOT) + "%", '\\');
             default:
                 throw new RuntimeException("Operation not supported yet");
