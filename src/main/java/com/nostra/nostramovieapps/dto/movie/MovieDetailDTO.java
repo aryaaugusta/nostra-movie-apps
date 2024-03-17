@@ -7,8 +7,6 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class MovieDetailDTO extends BaseDTO {
     private String overview;

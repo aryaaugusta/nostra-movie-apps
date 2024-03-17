@@ -7,9 +7,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity(name = "GENRE")
-@Setter
-@Getter
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
 public class Genre extends BaseEntity {
 

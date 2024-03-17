@@ -12,7 +12,6 @@ import java.util.Set;
 @Entity(name = "PERSON")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Person extends BaseEntity {
 
     @Id
