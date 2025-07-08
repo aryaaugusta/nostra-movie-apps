@@ -2,13 +2,16 @@ package com.nostra.nostramovieapps.entity.person;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity(name = "PERSON_DET")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class PersonDetail implements Serializable {
 

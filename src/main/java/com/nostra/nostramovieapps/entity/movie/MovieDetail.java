@@ -7,7 +7,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity(name = "MOVIE_DET")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class MovieDetail implements Serializable {
 

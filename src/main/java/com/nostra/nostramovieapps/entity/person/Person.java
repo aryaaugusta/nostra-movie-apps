@@ -2,15 +2,14 @@ package com.nostra.nostramovieapps.entity.person;
 
 import com.nostra.nostramovieapps.entity.base.BaseEntity;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity(name = "PERSON")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Person extends BaseEntity {
 
@@ -18,6 +17,9 @@ public class Person extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(hidden = true)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ApiModelProperty(example = "Tom Cruise", required = true)
     private String name;

@@ -2,14 +2,14 @@ package com.nostra.nostramovieapps.dto.base;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nostra.nostramovieapps.entity.enums.Status;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Setter
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BaseDTO {
     private Long id;
     private Long version;
